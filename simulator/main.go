@@ -6,7 +6,8 @@ import (
 
 	cKafka "github.com/confluentinc/confluent-kafka-go/kafka"
 
-	"github.com/codeedu/imersaofsfc2-simulator/infra/kafka"
+	kafkaApplication "github.com/codeedu/imersaofsfc2-simulator/application/kafka"
+	kafkaInfra "github.com/codeedu/imersaofsfc2-simulator/infra/kafka"
 	"github.com/joho/godotenv"
 )
 
@@ -20,10 +21,11 @@ func init() {
 
 func main() {
 	msgChan := make(chan *cKafka.Message)
-	kafkaConsumer := kafka.NewKafkaConsumer(msgChan)
+	kafkaConsumer := kafkaInfra.NewKafkaConsumer(msgChan)
 	go kafkaConsumer.Consume()
 
 	for msg := range msgChan {
+		go kafkaApplication.Produce(msg)
 		fmt.Println(string(msg.Value))
 	}
 }
